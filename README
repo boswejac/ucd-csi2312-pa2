@@ -1,6 +1,12 @@
 COMPILER:  Apple LLVM version 5.1 (clang-503.0.40) (based on LLVM 3.4svn)
 
 
+UPDATE: 9-22
+Testing was mostly successful with a few minor modifications.
+main.cpp updated to reflect tests.
+dynamic nodes handled more efficiently
+
+
 Included are Class definition and implementations for two classes:
 
 Point:
