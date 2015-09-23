@@ -206,7 +206,12 @@ std::ostream &operator<<(std::ostream &ostream, const Point &point) {
     ostream << "Dimensions: " << point.getDim() << "\n";
     ostream << "Values: ";
     for (int i=0;i<point.getDim();i++){
-        ostream << point.getArray(i) << ", ";
+        if (i+1 !=point.getDim()) {
+            ostream << point.getArray(i) << ", ";
+        }
+        else {
+            ostream << point.getArray(i);
+        }
     }
     ostream << "\n";
     return ostream;
