@@ -1,5 +1,9 @@
 COMPILER:  Apple LLVM version 5.1 (clang-503.0.40) (based on LLVM 3.4svn)
 
+UPDATE: 10-3
+All functions working, although the successful implementation of add() and remove()
+allows for more consice code than exists currently
+
 
 UPDATE: 9-22
 Testing was mostly successful with a few minor modifications.
@@ -31,6 +35,6 @@ Cluster:
 
 
 DRAWBACKS:
--I believe that some of my overwritten operators mishandle pointers and produce erroneous Clusters.
--I did not finish in time to test all of the code, so it certainly has errors.
+-Memory Leak
+-Bulky code
 -No comments (SORRY!!!!)
