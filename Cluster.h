@@ -27,6 +27,8 @@ namespace Clustering {
         Cluster(int sizee, LNodePtr pt);
         int getSize() const {return size;};
         LNodePtr getPtr() const {return points;};
+        void setPtr(LNodePtr pt) {points=pt;};
+
 
 
 
@@ -38,7 +40,7 @@ namespace Clustering {
         void add(const PointPtr &);
         const PointPtr &remove(const PointPtr &);
 
-
+        friend std::ostream &operator<<(std::ostream &, const Cluster &);
 
         bool operator==(const Cluster &rhs);
 
@@ -46,7 +48,7 @@ namespace Clustering {
         Cluster &operator+=(const Cluster &rhs);
         Cluster &operator-=(const Cluster &rhs);
 
-        Cluster &operator+=( Point &rhs);
+        Cluster &operator+=(Point &rhs);
         Cluster &operator-=(Point &rhs);
 
 
