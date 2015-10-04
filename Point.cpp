@@ -8,13 +8,23 @@
 
 
 Point::Point(const int dime) {
-    pArray = new double[dime];
+    dim=dime;
+    pArray = new double[dim];
 
 }
 
+Point::Point(const Point &p){
+    dim = p.getDim();
+    pArray = new double[dim];
+    for (int i=0;i<dim;i++){
+        pArray[i]=p.getArray(i);
+    }
+}
+
 Point::Point(int dime, double *pArr) {
-    pArray = new double[dime];
     dim = dime;
+    pArray = new double[dim];
+
     for(int i=0;i<dim;i++)
     {
         pArray[i]=pArr[i];
