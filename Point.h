@@ -5,7 +5,7 @@
 
 #ifndef PA2_INT_POINT_H
 #define PA2_INT_POINT_H
-#include "Point.h"
+
 #include <iostream>
 
 class Point {
@@ -18,6 +18,7 @@ public:
     // Constructors
     Point(int dime);
     Point(int dime, double pArr[dime]);
+    Point(const Point &p);
 
     ~Point();
 
