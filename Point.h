@@ -16,6 +16,7 @@ private:
 
 public:
     // Constructors
+    Point(){dim=0,pArray = new double[dim];};
     Point(int dime);
     Point(int dime, double pArr[dime]);
     Point(const Point &p);
@@ -29,7 +30,7 @@ public:
     void setDim(int i);
 
 
-    double distanceTo(Point& otherPoint);
+    double distanceTo(Point otherPoint);
 
     //Operators
     Point &operator*=(double);
