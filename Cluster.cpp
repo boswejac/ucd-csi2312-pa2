@@ -3,13 +3,20 @@
 //
 
 #include "Cluster.h"
+#include <sstream>
+#include <algorithm>
+
+
 
 namespace Clustering {
+
+
 
     Clustering::Cluster::Cluster(const Clustering::Cluster &cluster) {
         size = cluster.getSize();
         points = cluster.getPtr();
-    }
+        _id = newID();
+    };
 
     Clustering::Cluster &Clustering::Cluster::operator=(const Clustering::Cluster &cluster) {
         Cluster *clustPtr = new Cluster;
@@ -17,21 +24,24 @@ namespace Clustering {
         clustPtr = &newClust;
         return *clustPtr;
 
-    }
+    };
 
     Clustering::Cluster::~Cluster() {
 
-    }
+    };
 
     void Clustering::Cluster::add(Clustering::PointPtr const &ptr) {
 
         LNodePtr newPoint = new LNode;
         newPoint->p = ptr;
         newPoint->next = nullptr;
+
         if (points == nullptr) {
             points = newPoint;
             size++;
+            return;
         }
+
         LNodePtr current = points;
 
         LNodePtr previous = nullptr;
@@ -40,11 +50,23 @@ namespace Clustering {
 
 
         while (current != nullptr) {
-            if (*(current->p) > *ptr && inserted == false) {
+
+            if (*(current->p) > *ptr && !inserted) {
+
+                if(current == points){    ///if we are trying to insert at front
+
+                    newPoint->next = current;
+                    points = newPoint;
+                    size++;
+                    return;
+                }
+
+
                 newPoint->next = current;
                 previous->next = newPoint;
                 inserted = true;
                 size++;
+                return;
             }
             previous = current;
             current = current->next;
@@ -52,20 +74,22 @@ namespace Clustering {
         }
         if (inserted==false){
             previous->next=newPoint;
-            size++;}
-    }
+            size++;
+            return;}
+    };
 
 
 
 //must deallocate dynamic node
     Clustering::PointPtr const &Clustering::Cluster::remove(Clustering::PointPtr const &ptr) {
 
-
+        bool avail = false;
         LNodePtr current = points;
 
         LNodePtr previous = nullptr;
         while (current != nullptr) {
             if (current->p == ptr) {
+                avail = true;
                 size--;
                 if (previous != nullptr) {
                     previous->next = current->next;
@@ -78,14 +102,17 @@ namespace Clustering {
             previous = current;
             current = current->next;
         }
+        if (avail == false)
+            std::cout << "could not perform move function: pointer not found in source" << std::endl;
 
 
-    }
+    };
 
     Clustering::Cluster::Cluster(int sizee, Clustering::LNodePtr pt) {
         size = sizee;
         points = pt;
-    }
+        _id = newID();
+    };
 
     bool Clustering::Cluster::operator==(const Cluster &rhs) {
         LNodePtr c1 = points;
@@ -103,7 +130,7 @@ namespace Clustering {
             c2 = c2->next;
         }
         return status;
-    }
+    };
 
 //appends second cluster to end of first
     Clustering::Cluster &Clustering::Cluster::operator+=(const Cluster &rhs) {
@@ -127,7 +154,7 @@ namespace Clustering {
 
         for (int i = 0; i < size; i++) {
             currentrh = rhs.getPtr();
-            std::cout << "U" << std::endl;
+
             for (int j = 0; j < rhs.getSize(); j++) {
 
                 if (current->p == currentrh->p) {
@@ -150,7 +177,7 @@ namespace Clustering {
         size -= rhs.getSize();
         return *this;
 
-    }
+    };
 
     Clustering::Cluster &Clustering::Cluster::operator+=(Point &rhs) {
         LNodePtr current = points;
@@ -174,6 +201,7 @@ namespace Clustering {
         return *this;
 
     };
+
 
     Clustering::Cluster &Clustering::Cluster::operator-=(Point &rhs) {
         LNodePtr current = points;
@@ -231,7 +259,7 @@ namespace Clustering {
         }
     return plusClust;
 
-    }
+    };
 
 
     const Clustering::Cluster operator-(const Clustering::Cluster &lhs, const Clustering::Cluster &rhs) {
@@ -240,7 +268,7 @@ namespace Clustering {
         Clustering::Cluster minusClust(lhs);
 
         while (currentrh != nullptr) {
-            std::cout << "hi" << std::endl;
+
             current = lhs.getPtr();
             for (int i = 0; i < lhs.getSize(); i++) {
                 if (current->p == currentrh->p) {
@@ -267,7 +295,7 @@ namespace Clustering {
             newClust.add(rhs);
 
         return newClust;
-    }
+    };
 
     const Clustering::Cluster operator-(const Clustering::Cluster &lhs, const Clustering::PointPtr &rhs) {
         Clustering::Cluster newClust(lhs);
@@ -282,15 +310,119 @@ namespace Clustering {
             newClust.remove(rhs);
 
         return newClust;
-    }
+    };
 
     std::ostream &operator<<(std::ostream &ostream, const Cluster &clust){
+
         Clustering::LNodePtr current = clust.getPtr();
 
         for (int i=0;i< clust.getSize();i++) {
-            ostream << "Point #" << i+1 << "\n" << *current->p << "\n";
+            ostream << *current->p << " : " << clust.getID() << "\n";
             current=current->next;
         }
+        return ostream;
 
+    };
+
+    std::istream &operator>>(std::istream &istream, Cluster &cluster) {
+        std::string line;
+        getline(istream,line);
+        int d = std::count(line.begin(),line.end(),',') + 1;
+        std::stringstream lineStream(line);
+        PointPtr px = new Point(d);
+        lineStream >> *px;
+        cluster.add(px);
+
+        while (getline(istream, line)) {
+            std::stringstream lineStream(line);
+            PointPtr px = new Point(d);
+
+            lineStream >> *px;
+
+            cluster.add(px);
+
+        }
+
+        std::cout << "hi" << std::endl;
+        return istream;
+    };
+
+    void Cluster::computeCentroid() {
+        _valid_centroid = true;
+        if (points==nullptr){
+            double pArray[(0,0,0,0,0)];
+            Point p(5,pArray);
+            this->setCentroid(&p);
+            return;
+        }
+        PointPtr cent = new Point(this->getPtr()->p->getDim());
+
+        for(LNodePtr current = points; current != nullptr; current = current->next){
+            *cent+= *current->p;
+        }
+
+        *cent /= (this->getSize() );
+        this->setCentroid(cent);
+
+    };
+
+    void Cluster::Move::perform() {
+
+        target->add(source->remove(pptr));
+        target->set_valid(false);
+        source->set_valid(false);
+
+    };
+
+    int Cluster::newID() {
+        static int theID = 0;
+        return theID++;
+    };
+
+    void Cluster::pickPoints(int k, Clustering::PointPtr &pointArray) {
+
+        int step = this->getSize()/(k+1);
+        LNodePtr current = points;
+
+        for(int i = 0; i<k; i++){
+            for(int i =0;i<step;i++) {
+                current = current->next;
+            }
+            pointArray[i]= *current->p;
+        }
+
+
+    };
+
+
+    double Cluster::interClusterDistance(const Cluster &c1, const Cluster &c2) {
+        if(&c1==&c2){
+            return 0;
+        }
+        double sum = 0;
+        for(LNodePtr current = c1.getPtr();current != nullptr;current = current->next){
+            for(LNodePtr current2 = c2.getPtr();current2 != nullptr; current2 = current2->next){
+                sum += current->p->distanceTo(*current2->p);
+            }
+        }
+        return sum/2;
+    };
+
+
+    double Cluster::intraClusterDistance() {
+        double sum = 0;
+        for(LNodePtr current = points;current != nullptr;current = current->next){
+            for(LNodePtr current2 = points;current2 != nullptr; current2 = current2->next){
+                sum += current->p->distanceTo(*current2->p);
+            }
+        }
+        return sum/2;
+    }
+
+
+
+    void Cluster::setCentroid(PointPtr ptr) {
+        _centroid = *ptr;
+        _valid_centroid=true;
     }
 }
