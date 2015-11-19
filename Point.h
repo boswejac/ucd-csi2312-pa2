@@ -8,24 +8,28 @@
 
 #include <iostream>
 
+
+
 class Point {
 
 private:
     int dim;
     double *pArray;
+    unsigned int _id;
 
 public:
     // Constructors
-    Point(){dim=0,pArray = new double[dim];};
+    Point(){dim=0,pArray = new double[dim], _id=genID() ;};
     Point(int dime);
     Point(int dime, double pArr[dime]);
     Point(const Point &p);
 
     ~Point();
-
+    unsigned int genID();
     int getDim() const;
     double getArray(int i)const;
     void setArray(int i, double x);
+    void setID(unsigned int i){_id = i;};
 
     void setDim(int i);
 
@@ -39,8 +43,6 @@ public:
     Point operator/(double) const;
 
 
-
-
     friend Point &operator+=(Point &, const Point &);
     friend Point &operator-=(Point &, const Point &);
     friend const Point operator+(const Point &, const Point &);
@@ -48,6 +50,7 @@ public:
 
     friend bool operator==(const Point &, const Point &);
     friend bool operator!=(const Point &, const Point &);
+
 
     friend bool operator<(const Point &, const Point &);
     friend bool operator>(const Point &, const Point &);
