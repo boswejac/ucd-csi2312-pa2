@@ -21,14 +21,15 @@ namespace Clustering {
     class Cluster {
         int size;
         LNodePtr points;
+        bool _release_points;
         Point _centroid;
         bool _valid_centroid;
         int _id;
 
 
     public:
-        Cluster() : size(0), points(nullptr), _id(newID()) {};
-        Cluster(int sizee, LNodePtr pt);
+        Cluster() : size(0), points(nullptr), _release_points(false), _id(newID()) {};
+        Cluster(int sizee, LNodePtr pt, bool rlspts);
         int getSize() const {return size;};
         LNodePtr getPtr() const {return points;};
         void setPtr(LNodePtr pt) {points=pt;};
@@ -38,14 +39,7 @@ namespace Clustering {
         int getID() const {return _id;};
         int newID();
 
-        class Move {
-            PointPtr pptr;
-            Cluster* target;
-            Cluster* source;
-        public:
-            Move(const PointPtr &ptr, Cluster *from, Cluster *to){pptr=ptr,target=to,source=from, perform();};
-            void perform();
-        };
+        void setRPFlag(bool bl) {_release_points=bl;};
 
         void setCentroid(PointPtr ptr);
         Point getCentroid() const {return _centroid;};
@@ -53,14 +47,7 @@ namespace Clustering {
 
         double interClusterDistance(const Cluster &c1, const Cluster &c2);
         double intraClusterDistance();
-        int getClusterEdges(){
-            return size * (size - 1) / 2;
-        };
-
-        int interClusterEdges(const Cluster &c1, const Cluster &c2){
-            return c1.getSize() * (c2.getSize()-1)/2;
-
-        }
+        int getClusterEdges();
 
 
         Cluster(const Cluster &);
@@ -94,9 +81,15 @@ namespace Clustering {
 
 
     };
-
-
+    class Move {
+        PointPtr pptr;
+        Cluster* target;
+        Cluster* source;
+    public:
+        Move(const PointPtr &ptr, Cluster *from, Cluster *to){pptr=ptr,target=to,source=from, perform();};
+        void perform();
     };
 
-#endif //CLUSTERING_CLUSTER_H
+};
 
+#endif //CLUSTERING_CLUSTER_H
