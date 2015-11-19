@@ -2,10 +2,11 @@
 // Created by Home on 9/15/15.
 //
 
-#include "Cluster.h"
 #include <sstream>
 #include <algorithm>
-
+#include "Cluster.h"
+#include "Point.h"
+#include "Exceptions.h"
 
 
 namespace Clustering {
@@ -82,7 +83,13 @@ namespace Clustering {
 
 //must deallocate dynamic node
     Clustering::PointPtr const &Clustering::Cluster::remove(Clustering::PointPtr const &ptr) {
-
+        try{
+            if(size == 0){
+            RemoveFromEmptyEX except;
+                throw except;}
+        }catch(RemoveFromEmptyEX ex){
+            std::cout << "cant remove from cluster... " << ex;
+        }
         bool avail = false;
         LNodePtr current = points;
 
@@ -108,9 +115,10 @@ namespace Clustering {
 
     };
 
-    Clustering::Cluster::Cluster(int sizee, Clustering::LNodePtr pt) {
+    Clustering::Cluster::Cluster(int sizee, Clustering::LNodePtr pt, bool rl) {
         size = sizee;
         points = pt;
+        _release_points = rl;
         _id = newID();
     };
 
@@ -250,14 +258,14 @@ namespace Clustering {
                 plusClust.add(currentrh->p);
 
             }
-        currentrh = currentrh->next;
-    }
+            currentrh = currentrh->next;
+        }
         Clustering::LNodePtr printer = plusClust.getPtr();
         for (int i=0;i< plusClust.getSize();i++) {
             std::cout << *printer->p << std::endl;
             printer=printer->next;
         }
-    return plusClust;
+        return plusClust;
 
     };
 
@@ -348,6 +356,13 @@ namespace Clustering {
     };
 
     void Cluster::computeCentroid() {
+        try{
+            if(size == 0){
+                RemoveFromEmptyEX except;
+                throw except;}
+        }catch(RemoveFromEmptyEX ex){
+            std::cout << "cant compute centroid..." << ex;
+        }
         _valid_centroid = true;
         if (points==nullptr){
             double pArray[(0,0,0,0,0)];
@@ -366,7 +381,7 @@ namespace Clustering {
 
     };
 
-    void Cluster::Move::perform() {
+    void Move::perform() {
 
         target->add(source->remove(pptr));
         target->set_valid(false);
@@ -419,7 +434,9 @@ namespace Clustering {
         return sum/2;
     }
 
-
+    int Cluster::getClusterEdges() {
+        return size*(size-1)/2;
+    }
 
     void Cluster::setCentroid(PointPtr ptr) {
         _centroid = *ptr;
